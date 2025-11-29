@@ -10,7 +10,7 @@ export default function Target() {
       <PageHeader title="Meta" subtitle="Economize para alcançar sua meta financeira."/>
       <View style={{marginTop: 32, gap: 24}}>
         <Input label="Nome da meta" placeholder="Ex: Viagem para praia, Apple Watch"/>
-        <CurrencyInput label="Valor alvo" value={0}/>
+        <CurrencyInput label="Valor alvo (R$)" value={0}/>
         <Button
           title="Salvar"
         />

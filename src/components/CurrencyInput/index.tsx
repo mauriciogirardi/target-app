@@ -14,7 +14,6 @@ export function CurrencyInput({label, ...props}: CurrencyInputProps) {
       <Input 
         style={styles.input} 
         placeholderTextColor={colors.gray[400]}
-        prefix="R$ "
         delimiter="."
         separator=","
         minValue={0}
