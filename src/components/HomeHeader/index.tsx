@@ -5,17 +5,17 @@ import { Text, View } from "react-native"
 import { Separator } from "../Separator"
 import { Summary, SummaryProps } from "../Summary"
 
-export type HomeHeaderProps = {
+export type HomeHeaderData = {
   total: string
   input: SummaryProps
   output: SummaryProps
 }
 
-type Props = {
-  data: HomeHeaderProps
+type HomeHeaderProps = {
+  data: HomeHeaderData
 }
 
-export function HomeHeader({data}: Props) {
+export function HomeHeader({data}: HomeHeaderProps) {
   return (
     <LinearGradient colors={[colors.blue[500], colors.blue[800]]} style={styles.container}>
       <View>
@@ -27,7 +27,7 @@ export function HomeHeader({data}: Props) {
 
       <View style={styles.summary}>
         <Summary {...data.input} icon={{color: colors.green[500], name: 'arrow-upward'}}/>
-        <Summary {...data.output} icon={{color: colors.red[400], name: 'arrow-downward'}}/>
+        <Summary {...data.output} icon={{color: colors.red[400], name: 'arrow-downward'}} isRight />
       </View>
     </LinearGradient>
   )
