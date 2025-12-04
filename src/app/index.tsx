@@ -1,9 +1,12 @@
 import { Button } from "@/components/Button"
 import { HomeHeader } from "@/components/HomeHeader"
 import { List } from "@/components/List"
-import { Target } from "@/components/Target"
-import { router } from "expo-router"
-import { StatusBar, View } from "react-native"
+import { Loading } from "@/components/Loading"
+import { Target, TargetData } from "@/components/Target"
+import { useTargetDatabase } from "@/database/useTargetDatabase"
+import { router, useFocusEffect } from "expo-router"
+import { useCallback, useState } from "react"
+import { Alert, StatusBar, View } from "react-native"
 
 const summary = {
   total: 'R$ 2.400,98',
@@ -11,52 +14,45 @@ const summary = {
   output: { label: 'Saídas', value: '-R$: 2.000,00' },
 }
 
-const targets = [
-  {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '1'
-  },
-   {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '2'
-  },
-   {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '3'
-  },
-  {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '4'
-  },
-   {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '5'
-  },
-   {
-    name: 'Comprar uma cadeira ergonômica',
-    current: 'R$ 900,00',
-    percentage: '45%',
-    target: 'R$ 500,00',
-    id: '6'
-  }
-]
-
 export default function Index() {
+  const [targets, setTargets] = useState<TargetData[]>([])
+  const [isFetching, setIsFetching] = useState(true)
+
+  const targetDatabase = useTargetDatabase()
+
+  const fetchTargets = async (): Promise<TargetData[]> => {
+    try {
+      const response = await targetDatabase.listBySavedValue()
+      return response.map((item) => ({
+        id: String(item.id),
+        name: item.name,
+        current: String(item.current),
+        percentage: item.percentage.toFixed(0) + '%',
+        target: String(item.amount)
+      }))
+    } catch {
+       Alert.alert("Error", "Não foi possível carregar as metas.")
+    } finally {
+      setIsFetching(false)
+    }
+  }
+
+  const fetchData = async () => {
+    const targetDataPromise = fetchTargets()
+
+    const [targetData] = await Promise.all([ targetDataPromise ])
+
+    setTargets(targetData)
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchData()
+  }, []))
+
+  if (isFetching) {
+    return <Loading />
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content"/>
