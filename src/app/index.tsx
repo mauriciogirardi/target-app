@@ -4,6 +4,7 @@ import { List } from "@/components/List"
 import { Loading } from "@/components/Loading"
 import { Target, TargetData } from "@/components/Target"
 import { useTargetDatabase } from "@/database/useTargetDatabase"
+import { numberToCurrency } from "@/utils/numberToCurrency"
 import { router, useFocusEffect } from "expo-router"
 import { useCallback, useState } from "react"
 import { Alert, StatusBar, View } from "react-native"
@@ -26,9 +27,9 @@ export default function Index() {
       return response.map((item) => ({
         id: String(item.id),
         name: item.name,
-        current: String(item.current),
+        current: numberToCurrency(item.current),
         percentage: item.percentage.toFixed(0) + '%',
-        target: String(item.amount)
+        target: numberToCurrency(item.amount)
       }))
     } catch {
        Alert.alert("Error", "Não foi possível carregar as metas.")
@@ -45,14 +46,14 @@ export default function Index() {
     setTargets(targetData)
   }
 
-  useFocusEffect(useCallback(() => {
-    fetchData()
-  }, []))
+  useFocusEffect(
+    useCallback(() => {
+      fetchData()
+    }, [])
+  )
 
-  if (isFetching) {
-    return <Loading />
-  }
-
+  if (isFetching) return <Loading />
+  
   return (
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content"/>

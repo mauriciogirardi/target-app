@@ -15,6 +15,10 @@ export type TargetResponse = {
   updated_at: Date
 }
 
+export type TargetUpdate = TargetCreate & {
+  id: number
+}
+
 export function useTargetDatabase(){
   const db = useSQLiteContext()
 
@@ -46,7 +50,46 @@ export function useTargetDatabase(){
     `)
   }
 
+  function show(id: number) {
+    return db.getFirstAsync<TargetResponse>(`
+      SELECT 
+        targets.id,
+        targets.name,
+        targets.amount,
+        COALESCE (SUM(transactions.amount), 0) AS current,
+        COALESCE ((SUM(transactions.amount) / targets.amount) * 100, 0) AS percentage,
+        targets.created_at,
+        targets.updated_at
+      FROM targets
+      LEFT JOIN transactions ON targets.id = transactions.target_id
+      WHERE targets.id = ${id}
+    `)
+  }
+
+  async function update({amount, id, name}: TargetUpdate) {
+    const statement = await db.prepareAsync(`
+      UPDATE targets SET
+        name = $name,
+        amount = $amount,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $id  
+    `)
+
+    statement.executeAsync({
+      $id: id,
+      $name: name,
+      $amount: amount
+    })
+  }
+
+  async function remove(id: number) {
+    await db.runAsync('DELETE FROM targets WHERE id = ?', id)
+  }
+
   return {
+    show,
+    update,
+    remove,
     create,
     listBySavedValue
   }
